@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CodeX Cyber Lab</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .dashboard-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <div class="user-info">
+                <div class="user-avatar" id="userInitials"></div>
+                <div>
+                    <h2>Welcome, <span id="username">User</span>!</h2>
+                    <p id="userEmail">user@example.com</p>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+
+        <div class="dashboard-nav">
+            <div class="dashboard-card">
+                <h3>My Courses</h3>
+                <p>Access your enrolled courses and track your progress</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Certifications</h3>
+                <p>View and download your earned certificates</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Profile Settings</h3>
+                <p>Update your personal information and preferences</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Support</h3>
+                <p>Get help and contact our support team</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Check if user is authenticated
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Fetch and display user data
+            fetch('/api/auth/current-user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('username').textContent = user.username;
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('userInitials').textContent = user.username.charAt(0).toUpperCase();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+            });
+
+            // Handle logout
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+            });
+        });
+    </script>
+</body>
+</html>
